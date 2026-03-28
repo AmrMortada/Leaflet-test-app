@@ -11,16 +11,13 @@ body {
 }
 
 /* date input */
-#inptDate {
+.inptDate {
   height: fit-content;
   border-radius: 5px;
   padding: 5px;
 }
 /* my form for date input */
-#myForm {
-  position: absolute;
-  top: 10px;
-  left: 50px;
+.myForm {
   z-index: 1000;
   border-radius: 5px;
   border: 1px solid #e0e0e0;
@@ -73,13 +70,10 @@ body {
   background-color: #e0e0e06a;
 }
 
-#home {
-  position: fixed;
-  z-index: 1000;
-  top: 130px;
-  left: 10px;
+.home {
   width: fit-content;
   height: 30px;
+  font-size: 16px;
   border-radius: 3px;
   background-color: #ffffff;
   border: 2px solid rgba(0, 0, 0, 0.2);
