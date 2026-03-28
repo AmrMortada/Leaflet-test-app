@@ -1,10 +1,13 @@
 let mapCenter = [27.0778, 30.10516];
 let defaultZm = 6;
-let minZm = 0;
+let minZm = 1.3;
 let maxZm = 19;
 let zoomDelt = 0.5;
 let zoomSnp = 0;
 let myCRS = L.CRS.EPSG3857;
+let southWest = L.latLng(-85.0511287776, -179.999999975);
+let northEast = L.latLng(85.0511287776, 179.999999975);
+let maptBounds = L.latLngBounds(southWest, northEast);
 
 let map = L.map("map", {
   crs: myCRS,
@@ -12,8 +15,12 @@ let map = L.map("map", {
   zoom: defaultZm,
   minZoom: minZm,
   maxZoom: maxZm,
+  zoomControl: false,
   zoomDelta: zoomDelt,
   zoomSnap: zoomSnp,
+  maxBounds: maptBounds,
+  maxBoundsViscosity: 1.0,
+  inertia: true,
   scrollWheelZoom: true,
   preferCanvas: true,
 });
@@ -272,6 +279,39 @@ let getDataPoint = async function (apiURL, name = "pointlayer") {
 getDataPoint("WorldCities.geojson", "World Cities");
 
 //////////////////////////////////////////////////////////////////////////
+// --> Nasa WMS layer date change using custom control
+
+const dateControl = L.Control.extend({
+  options: {
+    position: "topleft",
+  },
+
+  onAdd: function () {
+    const container = L.DomUtil.create("form", "leaflet-bar myForm");
+
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+
+    const inptDate = L.DomUtil.create("input", "inptDate", container);
+
+    L.DomEvent.on(inptDate, "change", (e) => {
+      let selectedDate = new Date(e.target.value).toISOString().split("T")[0];
+
+      nasaLayerTerra.setParams({ time: selectedDate });
+      nasaLayerAqua.setParams({ time: selectedDate });
+    });
+
+    return container;
+  },
+});
+
+// --> zoom control
+L.control
+  .zoom({
+    position: "topright",
+  })
+  .addTo(map);
+map.addControl(new dateControl());
 
 // --> scale control
 L.control
@@ -290,12 +330,24 @@ map.on("mousemove", (ev) => {
 });
 
 // --> Home button
-let myHome = document.querySelector("#home");
-myHome.addEventListener("click", () => {
-  let homeZoom = 5;
-  let homeCenter = [27.0778, 30.10516];
-  map.flyTo(homeCenter, homeZoom, { duration: 1, animate: true });
+
+const homeControl = L.Control.extend({
+  options: {
+    position: "topleft",
+  },
+  onAdd: () => {
+    const container = L.DomUtil.create("div", "leaflet-bar home");
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+    const button = L.DomUtil.create("a", "", container);
+    button.innerHTML = '<div title="Home"">🏠</div>';
+    L.DomEvent.on(button, "click", (e) => {
+      map.flyTo(mapCenter, defaultZm);
+    });
+    return container;
+  },
 });
+map.addControl(new homeControl());
 
 // --> Location button
 let myLocation = document.querySelector("#locate");
@@ -343,14 +395,6 @@ myLocation.addEventListener("click", (e) => {
     map.stopLocate();
     locationAtive = false;
   }
-});
-
-// --> Nasa WMS layer date change
-let inptDate = document.querySelector("#inptDate");
-inptDate.addEventListener("change", (e) => {
-  let selectedDate = new Date(e.target.value).toISOString().split("T")[0];
-  nasaLayerTerra.setParams({ time: selectedDate });
-  nasaLayerAqua.setParams({ time: selectedDate });
 });
 
 let fetchBtn = document.querySelector("#fetchBtn");
@@ -483,3 +527,5 @@ fetchBtn.addEventListener("click", () => {
   }
   fetchData.value = "";
 });
+
+////////////////
