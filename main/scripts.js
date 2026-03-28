@@ -280,7 +280,6 @@ getDataPoint("WorldCities.geojson", "World Cities");
 
 //////////////////////////////////////////////////////////////////////////
 // --> Nasa WMS layer date change using custom control
-
 const dateControl = L.Control.extend({
   options: {
     position: "topleft",
@@ -293,6 +292,7 @@ const dateControl = L.Control.extend({
     L.DomEvent.disableScrollPropagation(container);
 
     const inptDate = L.DomUtil.create("input", "inptDate", container);
+    inptDate.type = "date";
 
     L.DomEvent.on(inptDate, "change", (e) => {
       let selectedDate = new Date(e.target.value).toISOString().split("T")[0];
@@ -527,5 +527,3 @@ fetchBtn.addEventListener("click", () => {
   }
   fetchData.value = "";
 });
-
-////////////////
