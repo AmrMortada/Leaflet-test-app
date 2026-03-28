@@ -378,7 +378,7 @@ myLocation.addEventListener("click", (e) => {
       "background-color: rgba(1, 157, 1, 0.6); color: #fff;";
     map.locate({
       setView: false,
-      watch: false,
+      watch: true,
       enableHighAccuracy: true,
       maxZoom: defaultZm,
     });
