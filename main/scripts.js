@@ -404,6 +404,41 @@ map.on("click", function () {
 
 // fetch data from API and add it to the map for point
 let fetchDataPoint = async function (apiURL, name = "pointlayer") {
+  //Cluster point style
+  const markers = L.markerClusterGroup({
+    iconCreateFunction: function (cluster) {
+      const count = cluster.getChildCount();
+
+      // Determine size class (same logic as default)
+      let sizeClass = "small";
+      if (count >= 100) {
+        sizeClass = "large";
+      } else if (count >= 10) {
+        sizeClass = "medium";
+      }
+
+      // Scale radius based on count
+      const radius = Math.min(30 + count * 0.8, 60);
+
+      return L.divIcon({
+        html: `<div style="
+        width: ${radius}px;
+        height: ${radius}px;
+        line-height: ${radius}px;
+        border-radius: 50%;
+        text-align: center;
+        color: black;
+        font-weight: bold;
+        font-size: ${Math.min(14 + count * 0.15, 24)}px;
+      ">${count}</div>`,
+        className: `marker-cluster marker-cluster-${sizeClass}`,
+        iconSize: [radius, radius],
+      });
+    },
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+  });
   let fetchedData = await fetch(apiURL);
   let myData = await fetchedData.json();
 
